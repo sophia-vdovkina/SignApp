@@ -1,0 +1,10 @@
+numpy==1.19.5
+scipy
+flask
+flask_restful
+SQLAlchemy
+jupyter 
+notebook
+tensorflow
+psycopg2
+pandas
