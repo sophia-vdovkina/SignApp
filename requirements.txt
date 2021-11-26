@@ -8,3 +8,4 @@ notebook
 tensorflow
 psycopg2
 pandas
+matplotlib

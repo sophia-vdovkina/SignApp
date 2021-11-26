@@ -20,7 +20,7 @@ def read_features(ofile):
     points = []
     N = int(ofile.readline())
     for num in range(N):
-        line = [int(x) for x in ofile.readline().split()]
+        line = [int(round(float(x))) for x in ofile.readline().split()]
         x = line[0]
         if num == 0:
             t = 0
@@ -84,26 +84,22 @@ def curvative(x, y):
     curvature_val[0] = 0
     return curvature_val
 
+def tan_angle(x, y):
+    x_t = np.gradient(x)
+    y_t = np.gradient(y)
+    return np.degrees(np.arctan(y_t/x_t))
 
-def extractXY(data):
+def extractXY(data, i):
     coords = pd.Series()
-    x = []
-    y = []
-    p = []
-    v = []
-    acc = []
-    tan_angle = []
-    curvative_val = []
-    for point in data:
-        x.append([i.x for i in point])
-        y.append([i.y for i in point])
-        p.append([i.p for i in point])
-        v = find_velocity(point)
-        acc = find_acceleration(point, v)
-        tan_angle = np.degrees(np.arctan(np.array(x)/np.array(y)))
-        curvative_val = curvative(np.array(x), np.array(y))
-        coords = pd.Series({'A': 10, 'B': 20, 'C': 30, 'D': 40}, name=3)
-        coords.append((x, y, p, v, acc, tan_angle, curvative_val))
+    x = [i.x for i in data]
+    y = [i.y for i in data]
+    p = [i.p for i in data]
+    v = find_velocity(data)
+    acc = find_acceleration(data, v)
+    angle = tan_angle(x,y)
+    curvative_val = curvative(np.array(x), np.array(y))
+    coords = pd.Series({'x':[x], 'y':[y], 'p':[p], 'v':[v], 'angle':[angle], 'radius':[curvative_val], 'index': i}).fillna(0)
+    # coords.append(coord)
     return coords
 
 
@@ -112,15 +108,36 @@ if __name__ == "__main__":
     sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'angle', 'radius', 'index'])
     i = 0
     name = 0
-    for file in os.listdir('./DeepSignDB/Development/finger'):
+    dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger')
+    for file in os.listdir(dir):
         sig = []
         if name != file[:5]:
             i += 1
             name = file[:5]
         if re.search(r'_g_', file):
-            with open(file, 'r') as ofile:
-                sig.append(read_features(ofile))
-            sig_true = sig_true.append(extractXY(sig))
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
+        elif re.search(r'_s_', file):
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
+    dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\stylus')
+    for file in os.listdir(dir):
+        sig = []
+        if name != file[:5]:
+            i += 1
+            name = file[:5]
+        if re.search(r'_g_', file):
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
+        elif re.search(r'_s_', file):
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
+    sig_true.to_csv('sigantures_finger_gen', encoding='utf-8', index=False)
+    sig_forg.to_csv('sigantures_finger_forg', encoding='utf-8', index=False)
         # elif re.search(r'_s_', file):
         #     sig.append(read_features(file))
         # sig_forg_finger.append(extractXY(sig))
