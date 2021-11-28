@@ -91,21 +91,21 @@ def tan_angle(x, y):
 
 def extractXY(data, i):
     coords = pd.Series()
-    x = [i.x for i in data]
-    y = [i.y for i in data]
-    p = [i.p for i in data]
-    v = find_velocity(data)
-    acc = find_acceleration(data, v)
-    angle = tan_angle(x,y)
-    curvative_val = curvative(np.array(x), np.array(y))
-    coords = pd.Series({'x':[x], 'y':[y], 'p':[p], 'v':[v], 'angle':[angle], 'radius':[curvative_val], 'index': i}).fillna(0)
+    x = np.nan_to_num([i.x for i in data])
+    y = np.nan_to_num([i.y for i in data])
+    p = np.nan_to_num([i.p for i in data])
+    v = np.nan_to_num(find_velocity(data))
+    acc = np.nan_to_num(find_acceleration(data, v))
+    angle = np.nan_to_num(tan_angle(x,y))
+    curvative_val = np.nan_to_num(curvative(np.array(x), np.array(y)))
+    coords = pd.Series({'x':x, 'y':y, 'p':p, 'v':v, 'acceleration': acc, 'angle':angle, 'radius':curvative_val, 'index': i}).fillna(0)
     # coords.append(coord)
     return coords
 
 
 if __name__ == "__main__":
-    sig_true = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'angle', 'radius', 'index'])
-    sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'angle', 'radius', 'index'])
+    sig_true = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
+    sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
     i = 0
     name = 0
     dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger')
@@ -136,8 +136,8 @@ if __name__ == "__main__":
             with open(os.path.join(dir, file), 'r') as ofile:
                 sig = read_features(ofile)
             sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
-    sig_true.to_csv('sigantures_finger_gen', encoding='utf-8', index=False)
-    sig_forg.to_csv('sigantures_finger_forg', encoding='utf-8', index=False)
+    sig_true.to_pickle('sigantures_gen.pkl')
+    sig_forg.to_pickle('sigantures_forg.pkl')
         # elif re.search(r'_s_', file):
         #     sig.append(read_features(file))
         # sig_forg_finger.append(extractXY(sig))

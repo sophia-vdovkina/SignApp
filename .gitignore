@@ -2,7 +2,13 @@ __pycache__
 .vscode
 venv
 .idea
-DeepSignDB
+preprocessing/DeepSignDB
 .ipynb_checkpoints
-sigantures_forg
-sigantures_gen
+preprocessing/sigantures_forg.pkl
+preprocessing/sigantures_gen.pkl
+preprocessing/anchor.npy
+preprocessing/negative.npy
+preprocessing/positive.npy
+preprocessing/positive_rand.npy
+preprocessing/negative_rand.npy
+preprocessing/anchor_rand.npy
