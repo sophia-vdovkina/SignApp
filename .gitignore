@@ -12,3 +12,4 @@ preprocessing/positive.npy
 preprocessing/positive_rand.npy
 preprocessing/negative_rand.npy
 preprocessing/anchor_rand.npy
+preprocessing/p1p2
