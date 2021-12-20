@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import re
+import struct
 
 from scipy import stats
 
@@ -15,6 +16,37 @@ class Point(object):
         self.p = p
         self.t = t
 
+
+def read_bim(file):
+    bims = []
+    b = file.read(4)
+    b = file.read(36)
+    header = struct.unpack('I2H10BHI2H8B', b)
+    b = file.read(4)
+    count = struct.unpack('I', b)[0]
+    for i in range(count):
+        ptc = []
+        # bim = Bim()
+        b = file.read(20)
+        info = struct.unpack('2I2H8B', b)
+        b = file.read(12)
+        bim_header = struct.unpack('6H', b)
+        n = bim_header[0]
+        maxX = bim_header[1]
+        maxY = bim_header[2]
+        maxP = bim_header[3]
+        dpix = bim_header[4]
+        dpiy = bim_header[5]
+        b = file.read(64)
+        for point in range(n):
+            x = struct.unpack('h', file.read(2))[0]
+            y = struct.unpack('h', file.read(2))[0]
+            p = struct.unpack('h', file.read(2))[0]
+            t = struct.unpack('h', file.read(2))[0]
+            ptc.append(Point(x, y, p, t))
+        #bim.ptc = self.scaleDots(bim.ptc)
+        bims.append(ptc)
+    return bims
 
 def read_features(ofile):
     points = []
@@ -106,38 +138,44 @@ def extractXY(data, i):
 if __name__ == "__main__":
     sig_true = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
     sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
-    i = 0
-    name = 0
-    dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger')
+    i = 1
+    dir = 'E:\\for-sophia\\BimBase\\Свои'
     for file in os.listdir(dir):
-        sig = []
-        if name != file[:5]:
-            i += 1
-            name = file[:5]
-        if re.search(r'_g_', file):
-            with open(os.path.join(dir, file), 'r') as ofile:
-                sig = read_features(ofile)
-            sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
-        elif re.search(r'_s_', file):
-            with open(os.path.join(dir, file), 'r') as ofile:
-                sig = read_features(ofile)
-            sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
-    dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\stylus')
-    for file in os.listdir(dir):
-        sig = []
-        if name != file[:5]:
-            i += 1
-            name = file[:5]
-        if re.search(r'_g_', file):
-            with open(os.path.join(dir, file), 'r') as ofile:
-                sig = read_features(ofile)
-            sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
-        elif re.search(r'_s_', file):
-            with open(os.path.join(dir, file), 'r') as ofile:
-                sig = read_features(ofile)
-            sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
-    sig_true.to_pickle('sigantures_gen.pkl')
-    sig_forg.to_pickle('sigantures_forg.pkl')
+        with open(os.path.join(dir, file), 'rb') as ofile:
+            sig = read_bim(ofile)
+        for signature in sig:
+            sig_true = sig_true.append(extractXY(signature, i), ignore_index=True)
+        i += 1
+    # dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger')
+    # for file in os.listdir(dir):
+    #     sig = []
+    #     if name != file[:5]:
+    #         i += 1
+    #         name = file[:5]
+    #     if re.search(r'_g_', file):
+    #         with open(os.path.join(dir, file), 'r') as ofile:
+    #             sig = read_features(ofile)
+    #         sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
+    #     elif re.search(r'_s_', file):
+    #         with open(os.path.join(dir, file), 'r') as ofile:
+    #             sig = read_features(ofile)
+    #         sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
+    # dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\stylus')
+    # for file in os.listdir(dir):
+    #     sig = []
+    #     if name != file[:5]:
+    #         i += 1
+    #         name = file[:5]
+    #     if re.search(r'_g_', file):
+    #         with open(os.path.join(dir, file), 'r') as ofile:
+    #             sig = read_features(ofile)
+    #         sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
+    #     elif re.search(r'_s_', file):
+    #         with open(os.path.join(dir, file), 'r') as ofile:
+    #             sig = read_features(ofile)
+    #         sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
+    sig_true.to_pickle('words.pkl')
+    # sig_forg.to_pickle('sigantures_forg.pkl')
         # elif re.search(r'_s_', file):
         #     sig.append(read_features(file))
         # sig_forg_finger.append(extractXY(sig))

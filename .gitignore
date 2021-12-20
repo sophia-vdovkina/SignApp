@@ -4,12 +4,5 @@ venv
 .idea
 preprocessing/DeepSignDB
 .ipynb_checkpoints
-preprocessing/sigantures_forg.pkl
-preprocessing/sigantures_gen.pkl
-preprocessing/anchor.npy
-preprocessing/negative.npy
-preprocessing/positive.npy
-preprocessing/positive_rand.npy
-preprocessing/negative_rand.npy
-preprocessing/anchor_rand.npy
+preprocessing/data
 preprocessing/p1p2
