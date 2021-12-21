@@ -8,3 +8,13 @@ class TestController(Resource):
         json = {"hello": "world"}
         result = models.Feature.query.all()
         return jsonify(result)
+
+    def post(self):
+        json = request.json
+        print(json['name'])
+
+    def put(self):
+        pass
+
+    def delete(self):
+        pass
