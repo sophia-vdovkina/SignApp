@@ -18,6 +18,9 @@ class Point(object):
 
 
 def read_bim(file):
+    """
+    Read signature bim from special file 
+    """
     bims = []
     b = file.read(4)
     b = file.read(36)
@@ -62,7 +65,7 @@ def read_features(ofile):
         if num != 0:
             t = line[2] - t1
             t1 = line[2]
-        points.append(Point(x, y, p, t))
+        points.append({'x':x, 'y':y, 'p':p, 't':t})
     return points
 
 
@@ -116,10 +119,12 @@ def curvative(x, y):
     curvature_val[0] = 0
     return curvature_val
 
+
 def tan_angle(x, y):
     x_t = np.gradient(x)
     y_t = np.gradient(y)
     return np.degrees(np.arctan(y_t/x_t))
+
 
 def extractXY(data, i):
     coords = pd.Series()
@@ -134,81 +139,48 @@ def extractXY(data, i):
     # coords.append(coord)
     return coords
 
-
-if __name__ == "__main__":
-    sig_true = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
-    sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
+    
+def preprocess_words(sig_true, dir):
     i = 1
-    dir = 'E:\\for-sophia\\BimBase\\Свои'
+    # dir = 'E:\\for-sophia\\BimBase\\Свои'
     for file in os.listdir(dir):
         with open(os.path.join(dir, file), 'rb') as ofile:
             sig = read_bim(ofile)
         for signature in sig:
             sig_true = sig_true.append(extractXY(signature, i), ignore_index=True)
         i += 1
-    # dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger')
-    # for file in os.listdir(dir):
-    #     sig = []
-    #     if name != file[:5]:
-    #         i += 1
-    #         name = file[:5]
-    #     if re.search(r'_g_', file):
-    #         with open(os.path.join(dir, file), 'r') as ofile:
-    #             sig = read_features(ofile)
-    #         sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
-    #     elif re.search(r'_s_', file):
-    #         with open(os.path.join(dir, file), 'r') as ofile:
-    #             sig = read_features(ofile)
-    #         sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
-    # dir = os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\stylus')
-    # for file in os.listdir(dir):
-    #     sig = []
-    #     if name != file[:5]:
-    #         i += 1
-    #         name = file[:5]
-    #     if re.search(r'_g_', file):
-    #         with open(os.path.join(dir, file), 'r') as ofile:
-    #             sig = read_features(ofile)
-    #         sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
-    #     elif re.search(r'_s_', file):
-    #         with open(os.path.join(dir, file), 'r') as ofile:
-    #             sig = read_features(ofile)
-    #         sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
     sig_true.to_pickle('words.pkl')
-    # sig_forg.to_pickle('sigantures_forg.pkl')
-        # elif re.search(r'_s_', file):
-        #     sig.append(read_features(file))
-        # sig_forg_finger.append(extractXY(sig))
 
-    # for i in range(1, 41):
-    #     sig = []
-    #     for j in range(1, 21):
-    #         with open(".\DeepSignDB\Development\finger\".format(i, j), 'r') as ofile:
-    #             sig.append(read_features(ofile))
-    #     sig_true.append(extractXY(sig))
-    #     sig = []
-    #     for j in range(21, 41):
-    #         with open("/media/danil/SOPHIA/Task2/U{}S{}.TXT".format(i, j), 'r') as ofile:
-    #             sig.append(read_features(ofile))
-    #     sig_forg.append(extractXY(sig))
-    # for i in range(0, 40):
-    #     file_open = "/media/danil/SOPHIA/sig_forg/sig_{}".format(i+1)
-    #     with open(file_open, 'w+') as file:
-    #         file.write(str(len(sig_forg[i])) + '\n')
-    #         for sign in sig_forg[i]:
-    #             file.write(str(len(sign)) + '\n')
-    #             file.write(str(len(sign[0])) + '\n')
-    #             for x in sign:
-    #                 for j in x:
-    #                     file.write(str(j) + ' ')
-    #                 file.write('\n')
-    #     file_open = "/media/danil/SOPHIA/sig_true/sig_{}".format(i + 1)
-    #     with open(file_open, 'w+') as file:
-    #         file.write(str(len(sig_true[i])) + '\n')
-    #         for sign in sig_true[i]:
-    #             file.write(str(len(sign)) + '\n')
-    #             file.write(str(len(sign[0])) + '\n')
-    #             for x in sign:
-    #                 for j in x:
-    #                     file.write(str(j) + ' ')
-    #                 file.write('\n')
+
+def read_gen_n_forg(sig_true, sig_forg, dir):
+    i = 1
+    for file in os.listdir(dir):
+        sig = []
+        if name != file[:5]:
+            i += 1
+            name = file[:5]
+        
+        if re.search(r'_g_', file):
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_true = sig_true.append(extractXY(sig, i), ignore_index=True)
+
+        elif re.search(r'_s_', file):
+            with open(os.path.join(dir, file), 'r') as ofile:
+                sig = read_features(ofile)
+            sig_forg = sig_forg.append(extractXY(sig, i), ignore_index=True)
+
+    return sig_true, sig_forg
+
+
+def preprocess_signatures(sig_true, sig_forg):
+    sig_true, sig_forg = read_gen_n_forg(sig_true, sig_forg, os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\finger'))
+    sig_true, sig_forg = read_gen_n_forg(sig_true, sig_forg, os.path.join(os.getcwd(), 'preprocessing\DeepSignDB\Development\\stylus'))
+
+    sig_forg.to_pickle('sigantures_forg.pkl')
+    sig_true.to_pickle('signatures_gen.pkl')
+
+   
+if __name__ == "__main__":
+    sig_true = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
+    sig_forg = pd.DataFrame(columns=['x', 'y', 'p', 'v', 'acceleration', 'angle', 'radius', 'index'])
