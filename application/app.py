@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 import application.database
-import application.api.test_controller as a_test
+import application.api.registration_controller as a_test
 
 def create_app(config_name):
     
@@ -11,6 +11,6 @@ def create_app(config_name):
     app.config.from_object(config_module)
 
     api = Api(app)
-    api.add_resource(a_test.TestController, "/api/v1/test/hello")
+    api.add_resource(a_test.PersonRegistration, "/api/v1/test/hello")
 
     return app
