@@ -9,9 +9,16 @@ class PersonRegistration(Resource):
     def post(self):
         json = request.get_json()
         user_register_context = registration_services.PersonRegistrationService(json)
-        code, message = user_register_context.registrate()
+        code, message = user_register_context.register()
         return message, code
 
+
+class SignatureRegistration(Resource):
+    def post(self):
+        json = request.get_json()
+        user_register_context = registration_services.SignatureRegistrationService(json)
+        code, message = user_register_context.register()
+        return message, code
 
 class RegistrationController(Resource):
 

@@ -23,15 +23,15 @@ class PersonRegisterValidate(Validate):
 
 
 class NameValidate(Validate):
-    valid_username_regex = "^/[а-яёА-ЯЁ]{64}|[a-zA-Z]{64}$/u"
+    valid_username_regex = r"^[а-яА-Я]{2,64}|[a-zA-Z]{2,64}$"
 
     def __init__(self, username: str, is_second_name=False):
         self.username = username
         self.is_second_name = is_second_name
 
     def validate(self):
-        if self.is_second_name & self.username == None:
-            pass 
+        if self.is_second_name and self.username is None:
+            return
         if not re.match(self.valid_username_regex, self.username):
             raise ValueError("Name should contain only letters")
 
@@ -50,7 +50,7 @@ class UserValidateProcess:
 
 
 class PassportValidate(Validate):
-    valid_passport_regex = "^/[0-9]{10}$/"
+    valid_passport_regex = r"^[0-9]{10}$"
 
     def __init__(self, passport: str):
         self.passport = passport

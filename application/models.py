@@ -12,7 +12,7 @@ class ReferenceParams(Base):
     __tablename__ = "reference_parameters"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
     min_value = Column(Float(), nullable=True)
     max_value = Column(Float(), nullable=True)
     mean_value = Column(Float(), nullable=True)
@@ -24,7 +24,7 @@ class SecuritySettings(Base):
     __tablename__ = "security_settings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
     threshold = Column(Float(), default=0.75)
     attempts_num = Column(Integer(), default=3)
 
@@ -35,7 +35,7 @@ class Info(Base):
     __tablename__ = "info"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
     organization = Column(String(255), nullable=True) 
     registration_date = Column(DateTime, default=func.now())
     comment = Column(String(255), nullable=True) 
@@ -47,7 +47,7 @@ class SignatureSet(Base):
     __tablename__ = "signature_set"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
     isActive = Column(Boolean, nullable=False)
 
     signature = relationship("Signature", back_populates="signature_set")
@@ -59,8 +59,8 @@ class Signature(Base):
     __tablename__ = "signature"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    set_id = Column(UUID, ForeignKey("signature_set.id"))
-    device_id = Column(UUID, ForeignKey("device.id"))
+    set_id = Column(UUID(as_uuid=True), ForeignKey("signature_set.id"), nullable=True)
+    device_id = Column(UUID(as_uuid=True), ForeignKey("device.id"))
     file_path = Column(String(255), nullable=True)
     num_in_file = Column(Integer, nullable=True)
     capture_date_time = Column(DateTime(), default=func.now())
@@ -90,7 +90,7 @@ class Feature(Base):
     __tablename__ = "feature"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    signature_id = Column(UUID, ForeignKey("signature.id"))
+    signature_id = Column(UUID(as_uuid=True), ForeignKey("signature.id"))
     values = Column(ARRAY(Float), nullable=False)
     name = Column(String(32))
     index = Column(Integer())
@@ -121,8 +121,8 @@ class LoginAttempts(Base):
     __tablename__ = "login_attempts"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
-    signature_id = Column(UUID, ForeignKey("signature.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
+    signature_id = Column(UUID(as_uuid=True), ForeignKey("signature.id"))
     date_time = Column(DateTime(), default=func.now())
 
     person = relationship("Person", back_populates="login_attempts")
@@ -133,8 +133,8 @@ class IdentificationAttempts(Base):
     __tablename__ = "identification_attempts"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    person_id = Column(UUID, ForeignKey("person.id"))
-    signature_id = Column(UUID, ForeignKey("signature.id"))
+    person_id = Column(UUID(as_uuid=True), ForeignKey("person.id"))
+    signature_id = Column(UUID(as_uuid=True), ForeignKey("signature.id"))
     date_time = Column(DateTime(), default=func.now())
     confidence_value = Column(Float, nullable=True)
 
